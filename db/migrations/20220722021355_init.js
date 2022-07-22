@@ -29,5 +29,5 @@ exports.up = function(knex) {
 exports.down = function(knex) {
   return knex
     .schema
-        .dropSchemaIfExists( 'content');
+        .dropSchemaIfExists('content');
 };

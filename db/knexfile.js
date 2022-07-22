@@ -8,6 +8,7 @@ const { knexSnakeCaseMappers } = require('objection');
 module.exports = {
   client: 'pg',
   connection: {
+
     host: 'localhost',
     database: 'notes',
     user:     'admin',
@@ -21,5 +22,6 @@ module.exports = {
       seeds: {
         tableName: './seeds'
     },
+    ...knexSnakeCaseMappers,
   }
 };
