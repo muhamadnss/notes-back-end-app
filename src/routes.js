@@ -26,19 +26,19 @@ const routes = [
 
     {
         method: 'GET',
-        path: '/notes/{id}',
+        path: '/notes/{contentId}',
         handler: getNoteByIdHandler,
     },
 
     {
         method: 'PUT',
-        path: '/notes/{id}',
+        path: '/notes/{contentId}',
         handler: editNoteByIdHandler,
     },
 
     {
         method: 'DELETE',
-        path: '/notes/{id}',
+        path: '/notes/{contentId}',
         handler: deleteNoteByIdHandler,
     }
 ];

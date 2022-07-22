@@ -7,23 +7,23 @@ const getServer = (request, h) => {
 const addNoteHandler = (request, h) => {
     const { title, tags, body } = request.payload;
 
-    const id = nanoid(3);
+    const contentId = nanoid(3);
     const createdAt = new Date().toISOString;
     const updatedAt = createdAt;
     
     const newNote = { 
-        id, title, tags, body, createdAt, updatedAt,
+        contentId, title, tags, body, createdAt, updatedAt,
     };
     
     notes.push(newNote);
-    const isSuccess = notes.filter((note) => note.id === id).length > 0;
+    const isSuccess = notes.filter((note) => note.contentId === contentId).length > 0;
 
     if(isSuccess) {
         const response = h.response({
             status: 'success',
             message: 'catatan berhasil ditambahkan',
             data: {
-                noteId: id,
+                noteId: contentId,
             },
         });
         response.code(201);
@@ -48,7 +48,7 @@ const getAllNotesHandler = () => ({
 const getNoteByIdHandler = (request, h) => {
     const { id } = request.params;
 
-    const note = notes.filter((n) => n.id === id)[0];
+    const note = notes.filter((n) => n.contentId === contentId)[0];
 
     if(note !== undefined) {
         return {
@@ -73,7 +73,7 @@ const editNoteByIdHandler = (request, h) => {
     const { title, tags, body } = request.payload;
     const updatedAt = new Date().toISOString;
 
-    const index = notes.findIndex((note) => note.id === id);
+    const index = notes.findIndex((note) => note.contentId === contentId);
 
     if (index !== -1) {
         notes[index] = {
@@ -102,7 +102,7 @@ const editNoteByIdHandler = (request, h) => {
 
 const deleteNoteByIdHandler = (request, h) => {
     const { id } = request.params;
-    const index = notes.findIndex((note) => note.id === id);
+    const index = notes.findIndex((note) => note.contentId === contentId);
 
     if (index !== -1) {
         notes.splice(index, 1);

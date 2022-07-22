@@ -3,24 +3,23 @@
 /**
  * @type { Object.<string, import("knex").Knex.Config> }
  */
-module.exports = {
 
+const { knexSnakeCaseMappers } = require('objection');
+module.exports = {
+  client: 'pg',
+  connection: {
+    host: 'localhost',
+    database: 'notes',
+    user:     'admin',
+    password: 'root',
+    charset: 'utf8',
+  },
   developments: {
-    client: 'postgresql',
-    connection: {
-      host: 'localhost',
-      database: 'content',
-      user:     'admin',
-      password: 'root',
-      charset: 'utf8',
-    },
-    pool: {
-      min: 2,
-      max: 10
-    },
     migrations: {
       tableName: 'knex_migrations'
-    }
-  },
-
+    },
+      seeds: {
+        tableName: './seeds'
+    },
+  }
 };
