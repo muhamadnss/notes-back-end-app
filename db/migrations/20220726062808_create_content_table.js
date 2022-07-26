@@ -16,8 +16,7 @@ exports.up = function(knex) {
         contentTable.string( 'tags', 50 ).notNullable().unique();
         contentTable.string( 'body', 250 ).notNullable();
 
-        contentTable.timestamp( 'created_at' ).defaultTo(knex.fn.now());
-        contentTable.timestamp( 'update_at' ).references('created_at');
+        contentTable.timestamp( 'created_at' ).defaultTo(knex.fn.now())
         
     } )
 };
@@ -27,7 +26,5 @@ exports.up = function(knex) {
  * @returns { Promise<void> }
  */
 exports.down = function(knex) {
-  return knex
-    .schema
-        .dropSchemaIfExists('content');
+  
 };

@@ -1,3 +1,4 @@
+// import { Knex } from 'knex';
 const Hapi = require('@hapi/hapi');
 const routes = require('./routes');
 // const auth = require('hapi-auth-jwt');

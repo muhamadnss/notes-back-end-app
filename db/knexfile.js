@@ -13,6 +13,7 @@ module.exports = {
     database: 'notes',
     user:     'admin',
     password: 'root',
+    port: '5432',
     charset: 'utf8',
   },
   developments: {
