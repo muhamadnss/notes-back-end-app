@@ -6,9 +6,9 @@
   "scripts": {
     "start": "nodemon ./src/server.js",
     "lint": "eslint ./",
-    "migrate": "npx knex migrate:latest --knexfile ./db/knexfile.js",
-    "make-seed": "npx knex seed:make dev --knexfile ./db/knexfile.js",
-    "seed": "npx knex seed:run --knexfile ./db/knexfile.js"
+    "migrate": "npx knex migrate:latest --knexfile ./knexfile.js",
+    "make-seed": "npx knex seed:make dev --knexfile ./knexfile.js",
+    "seed": "npx knex seed:run --knexfile ./knexfile.js"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +21,11 @@
   },
   "dependencies": {
     "@hapi/hapi": "^20.2.2",
+    "bcrypt": "^5.0.1",
+    "dotenv": "^16.0.1",
     "hapi-auth-jwt": "^4.0.0",
+    "hapi-auth-jwt2": "^10.2.0",
+    "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "knex": "^2.2.0",
     "nanoid": "^3.3.4",

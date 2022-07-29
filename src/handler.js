@@ -1,6 +1,7 @@
-const { response } = require('@hapi/hapi/lib/validation');
+const {genSalt, hash, compare}= require('bcrypt')
+const JWT = require('jsonwebtoken')
 const {nanoid} = require('nanoid');
-const knex = require('./knex');
+const knex = require('./../knexfile');
 // const notes = require('./notes');
 // const knex = require('./knex.js');
 // const queries = require(./queries);
@@ -115,7 +116,7 @@ const getNoteByIdHandler = async (request, h) => {
             if(!findId) {
                 const response = h.response({
                     status: 'fail',
-                    message: `Catatan dengan ID ${id_content} tidak ditemukan`,
+                    message: `Catatan tidak ditemukan`,
                     data: result,
                 })
                 .code(404);
@@ -123,7 +124,7 @@ const getNoteByIdHandler = async (request, h) => {
             }
         const response = h.response({
             status: 'success',
-            message: `Catatan dengan ${contentId} berhasil ditemukan`,
+            message: `Catatan berhasil ditemukan`,
             data: result,
         })
         .code(200);
@@ -194,4 +195,123 @@ const deleteNoteByIdHandler = async (request, h) => {
         });  
     return deleteNote;
 };
-module.exports = {getServer, addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler, deleteNoteByIdHandler};
+const createUsers = async (request, h) => {
+    const tableName = 'users';
+    const { username, password } = request.payload;
+    //Inisialisasi jumlah prefiks/sufiks karakter yang akan ditambahkan ke password
+    const salt = await genSalt(10);
+    const hashPassword = await hash(password, salt)
+    const getUser = await knex(tableName).insert(
+        {
+        username,
+        password: hashPassword,
+        }
+    )
+    .into(tableName)
+    .returning("*")
+    .then((users) => {
+        const findUsers = users.find(({username}) => username === username);
+        const token = JWT.sign({ id: findUsers.id }, 'testjwt2356');
+        const response = h.response({
+            status: 'success',
+            message: 'User berhasil ditambahkan',
+            data: {
+                users,
+                //Ada rekomendasi untuk 
+                token,
+            },
+        })
+        .code(201);
+        return response;
+        })
+    .catch((err) => {
+            const response = h.response ({
+                status: 'fail',
+                message: 'Username sudah ada',
+            })
+            .code(404);
+            return response;
+        });
+        return getUser
+}
+const retrieveUser = async (request, h) => {
+    const getUser = await knex("users").then((results) => {
+      const response = h
+        .response({
+          status: "success",
+          message: "Berhasil Mendapatkan Data",
+          totalUsers: results.length,
+          data: {
+            results,
+          },
+        })
+        .code(200);
+      return response;
+    });
+    return getUser;
+};
+const loginUser = async (request, h) => {
+    const { username, password } = request.payload;
+    const tableName = 'users';
+    const getUser = await knex(tableName)
+    .where({username})
+    .then( async (users) => {
+        const findUsers = users.find(({username}) => username === username);
+        const token = JWT.sign({ id: findUsers.id }, 'testjwt2356', { expiresIn: '30s',});
+        const comparePassword = await compare(password, findUsers.password);
+        if (!comparePassword) {
+            const response = h.response({
+                status: 'fail',
+                message: 'Password tidak sesuai',
+            })
+            .code(400);
+            return response;
+        }
+        const response = h.response ({
+            status: 'success',
+            message: 'User berhasil login',
+            data: {
+                findUsers, token
+            },
+        })
+        .code(200)
+        .header("Authorization", `Bearer ${token}`);
+        return response;
+    })
+    .catch(() => {
+        const response = h.response ({
+            status: 'fail',
+            message: `Username ${username} tidak ada`,
+        })
+        .code(404);
+        return response
+    });
+    return getUser;
+};
+const deleteUserByUsername = async (request, h) => {
+    const { id } = request.params;
+    const tableName = 'users';
+    const deleteUser = await knex(tableName)
+        .where({id_user: id})
+        .del() //fungsi delete masih ada bugs/tidak berfungsi
+        .then((results) => {
+            const findId = results.find(({id}) => id === id);
+            if(!findId) {
+                const response = h.response({
+                    status: 'fail',
+                    message: `Catatan tidak ditemukan`,
+                    // data: result,
+                })
+                .code(404);
+                return response;    
+            }
+        const response = h.response({
+            status: 'success',
+            message: `Catatan berhasil ditemukan`,
+        })
+        .code(200);
+        return response;
+        });  
+    return deleteUser;
+}
+module.exports = {getServer, addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler, deleteNoteByIdHandler, createUsers, retrieveUser, loginUser, deleteUserByUsername};

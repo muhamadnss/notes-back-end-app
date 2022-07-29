@@ -1,8 +1,12 @@
 // import { Knex } from 'knex';
 const Hapi = require('@hapi/hapi');
 const routes = require('./routes');
+const validate = require('./validate')
 // const auth = require('hapi-auth-jwt');
-const init = async () => {
+
+const internals = {};
+
+internals.init = async () => {
     const server = Hapi.server({
          port: 5000,
          host: 'localhost',
@@ -12,7 +16,18 @@ const init = async () => {
           },
       },
     });
-    
+
+    await server.register(require('hapi-auth-jwt2'));
+    server.auth.strategy('jwt', 'jwt', {
+        key: 'testjwt2356', 
+        validate,
+        verifyOptions: {
+            algorithms: ['HS256'],
+        }
+    });
+
+    server.auth.default('jwt');
+
     server.route(routes);
     await server.start();
 
@@ -43,4 +58,4 @@ const init = async () => {
     console.log('Server sudah dijalankan pada %s', server.info.uri);
 };
 
-init();
+internals.init();

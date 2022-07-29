@@ -5,7 +5,7 @@
 exports.up = function(knex) {
     return knex
     .schema
-    .createTable( 'content', function( contentTable ) {
+    .createTable('content', function(contentTable) {
 
         // Primary Key
         contentTable.increments();
@@ -18,7 +18,12 @@ exports.up = function(knex) {
 
         contentTable.timestamp( 'created_at' ).defaultTo(knex.fn.now())
         
-    } )
+    })
+    .createTable('users', function(usersTable) {
+        usersTable.increments();
+        usersTable.string('username', 10).notNullable().unique();
+        usersTable.string('password', 8).notNullable();
+    })
 };
 
 /**
