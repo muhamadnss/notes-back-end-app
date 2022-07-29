@@ -10,7 +10,7 @@ const auth = require('hapi-auth-jwt');
 
 require('dotenv').config({ path: envPath});
 
-const { SERVER_HOST, SERVER_PORT} = process.env
+const { SERVER_HOST, SERVER_PORT, JWT_SECRET_KEY} = process.env
 const internals = {};
 
 internals.init = async () => {
@@ -26,7 +26,7 @@ internals.init = async () => {
 
     await server.register(require('hapi-auth-jwt2'));
     server.auth.strategy('jwt', 'jwt', {
-        key: 'testjwt2356', 
+        key: JWT_SECRET_KEY, 
         validate,
         verifyOptions: {
             algorithms: ['HS256'],
