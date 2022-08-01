@@ -9,10 +9,6 @@ require('dotenv').config({ path: envPath});
 
 const { JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY } = process.env
 
-// const notes = require('./notes');
-// const knex = require('./knex.js');
-// const queries = require(./queries);
-
 const getServer = (request, h) => {
         return 'Hello, server is working';
 }
@@ -22,8 +18,6 @@ const addNoteHandler = async (request, h) => {
     const { title, tags, body } = request.payload;
 
     const contentId = nanoid(3);
-    // const createdAt = new Date().toISOString;
-    // const updatedAt = createdAt;
     const postNote = await knex(tableName).insert(
             {
                 id_content: contentId, 
@@ -39,7 +33,6 @@ const addNoteHandler = async (request, h) => {
                 message: 'catatan berhasil ditambahkan',
                 data: {
                     content
-                    // result : content
                 },     
             })
                 response.code(201);
@@ -53,14 +46,6 @@ const addNoteHandler = async (request, h) => {
             response.code(500);
             return response; 
         });  
-    // const newNote = { 
-    //     contentId, title, tags, body, createdAt, updatedAt,
-    // };
-    
-    // //ini adalah untuk masukin data lewat array
-    // notes.push(newNote);
-    //ini adalah untuk input data lewat API
-
         return postNote;
 };
 
@@ -78,39 +63,8 @@ const getAllNotesHandler = async (request, h) => {
         response.code(200);
         return response;
     });
-    // status: 'success',
-    // data: {
-    //     notes,
-    // },
     return getNote;
 };
-
-// const getNoteByIdHandler = async (request, h) => {
-//     const { contentId } = await request.params;
-//     const tableName = 'content';
-//     const getNote = await knex(tableName)
-//         .where({ id_content: contentId })
-//         .then((result) => {
-//             const findNote = result.find(({ id_content }) => id_content === contentId);
-
-//             if(!findNote) {
-//                 const response = h.response({
-//                     status: 'success',
-//                     message: `Catatan dengan ID ${id_content} berhasil ditemukan`,
-//                     data: result,
-//                 })
-//                 .code(200);
-//                 return response;    
-//             }
-//         const response = h.response({
-//             status: 'fail',
-//             message: `Catatan dengan ${contentId} tidak ditemukan`
-//         })
-//         response.code(404);
-//         return response;
-//         });
-
-// };
 
 const getNoteByIdHandler = async (request, h) => {
     const { contentId } = await request.params;
@@ -145,7 +99,6 @@ const editNoteByIdHandler = async (request, h) => {
     const { contentId } = request.params;
     const { title, tags, body, } = request.payload;
     const tableName = 'content';
-    // const updateAt = new Date().toISOString;
     const getNote = await knex(tableName)
         .where({id_content: contentId})
         .update({ 
@@ -182,7 +135,7 @@ const deleteNoteByIdHandler = async (request, h) => {
     const tableName = 'content';
     const deleteNote = await knex(tableName)
         .where({id_content: contentId})
-        .del("id_content") //fungsi delete masih ada bugs/tidak berfungsi
+        .del("id_content")
         .then((results) => {
             const response = h.response({
                 status: 'success',
@@ -224,8 +177,8 @@ const createUsers = async (request, h) => {
             message: 'User berhasil ditambahkan',
             data: {
                 users,
-                //Ada rekomendasi untuk 
-                token,
+                //Ada rekomendasi untuk tidak menampilkan token di data response ke user
+                token, //just for development usage
             },
         })
         .code(201);
@@ -297,13 +250,12 @@ const loginUser = async (request, h) => {
     return getUser;
 };
 
-// Not Functionable, need improvement
 const deleteUserByID = async (request, h) => {
     const { userId } = request.params;
     const tableName = 'users';
     const deleteUser = await knex(tableName)
         .where({id_user: Number(userId)})
-        .del() //fungsi delete masih ada bugs/tidak berfungsi
+        .del()
         .then((results) => {
             const response = h.response({
                 status: 'success',
@@ -325,11 +277,9 @@ const deleteUserByID = async (request, h) => {
 
 const getUserById = async (request, h) => {
     const { userId } = await request.params;
-    // const tableName = 'content';
     const getNote = await knex('users')
     .where({ id_user: Number(userId) })
     .then((result) => {
-        //Logic nya masih ngawur
         const findId = result.find(({id_user}) => id_user === Number(userId));
             if(!findId) {
                 const response = h.response({
