@@ -2,6 +2,13 @@ const {genSalt, hash, compare}= require('bcrypt')
 const JWT = require('jsonwebtoken')
 const {nanoid} = require('nanoid');
 const knex = require('./../knexfile');
+const path = require('path');
+const envFile = process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env'
+const envPath = path.resolve(`${__dirname}/../${envFile}`); 
+require('dotenv').config({ path: envPath});
+
+const { JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY } = process.env
+
 // const notes = require('./notes');
 // const knex = require('./knex.js');
 // const queries = require(./queries);
@@ -117,7 +124,6 @@ const getNoteByIdHandler = async (request, h) => {
                 const response = h.response({
                     status: 'fail',
                     message: `Catatan tidak ditemukan`,
-                    data: result,
                 })
                 .code(404);
                 return response;    
@@ -187,8 +193,8 @@ const deleteNoteByIdHandler = async (request, h) => {
         })
         .catch(() => {
             const response = h.response({
-                status: 'success',
-                message: `Catatan dengan tidak berhasil dihapus`,
+                status: 'fail',
+                message: 'Catatan tidak berhasil dihapus',
             });
             response.code(404);
             return response; 
@@ -197,7 +203,7 @@ const deleteNoteByIdHandler = async (request, h) => {
 };
 const createUsers = async (request, h) => {
     const tableName = 'users';
-    const { username, password } = request.payload;
+    const { username, password, role } = request.payload;
     //Inisialisasi jumlah prefiks/sufiks karakter yang akan ditambahkan ke password
     const salt = await genSalt(10);
     const hashPassword = await hash(password, salt)
@@ -205,13 +211,14 @@ const createUsers = async (request, h) => {
         {
         username,
         password: hashPassword,
+        role
         }
     )
     .into(tableName)
     .returning("*")
     .then((users) => {
-        const findUsers = users.find(({username}) => username === username);
-        const token = JWT.sign({ id: findUsers.id }, 'testjwt2356');
+        const findUsers = users.find(({username,}) => username === username);
+        const token = JWT.sign({ id: findUsers.id, role }, JWT_SECRET_KEY);
         const response = h.response({
             status: 'success',
             message: 'User berhasil ditambahkan',
@@ -257,7 +264,8 @@ const loginUser = async (request, h) => {
     .where({username})
     .then( async (users) => {
         const findUsers = users.find(({username}) => username === username);
-        const token = JWT.sign({ id: findUsers.id }, 'testjwt2356', { expiresIn: '30s',});
+        const token = JWT.sign({ id: findUsers.id }, JWT_SECRET_KEY, { expiresIn: '30s',});
+        const refreshToken = JWT.sign({ id: findUsers.id }, JWT_REFRESH_SECRET_KEY, { expiresIn: '2h'})
         const comparePassword = await compare(password, findUsers.password);
         if (!comparePassword) {
             const response = h.response({
@@ -271,7 +279,7 @@ const loginUser = async (request, h) => {
             status: 'success',
             message: 'User berhasil login',
             data: {
-                findUsers, token
+                findUsers, token, refreshToken
             },
         })
         .code(200)
@@ -288,30 +296,57 @@ const loginUser = async (request, h) => {
     });
     return getUser;
 };
-const deleteUserByUsername = async (request, h) => {
-    const { id } = request.params;
+
+// Not Functionable, need improvement
+const deleteUserByID = async (request, h) => {
+    const { userId } = request.params;
     const tableName = 'users';
     const deleteUser = await knex(tableName)
-        .where({id_user: id})
+        .where({id_user: Number(userId)})
         .del() //fungsi delete masih ada bugs/tidak berfungsi
         .then((results) => {
-            const findId = results.find(({id}) => id === id);
+            const response = h.response({
+                status: 'success',
+                message: 'User berhasil dihapus',
+            })
+                response.code(200);
+                return response;
+        })
+        .catch(() => {
+            const response = h.response({
+                status: 'fail',
+                message: 'User tidak berhasil dihapus',
+            });
+            response.code(404);
+            return response; 
+        });  
+    return deleteUser;
+};
+
+const getUserById = async (request, h) => {
+    const { userId } = await request.params;
+    // const tableName = 'content';
+    const getNote = await knex('users')
+    .where({ id_user: Number(userId) })
+    .then((result) => {
+        //Logic nya masih ngawur
+        const findId = result.find(({id_user}) => id_user === Number(userId));
             if(!findId) {
                 const response = h.response({
                     status: 'fail',
-                    message: `Catatan tidak ditemukan`,
-                    // data: result,
+                    message: 'User tidak ditemukan',
                 })
                 .code(404);
                 return response;    
-            }
-        const response = h.response({
-            status: 'success',
-            message: `Catatan berhasil ditemukan`,
-        })
-        .code(200);
-        return response;
-        });  
-    return deleteUser;
-}
-module.exports = {getServer, addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler, deleteNoteByIdHandler, createUsers, retrieveUser, loginUser, deleteUserByUsername};
+            } 
+            const response = h.response({
+                status: 'success',
+                message: 'User berhasil ditemukan',
+                data: result,
+            })
+            .code(200);
+            return response;
+        });
+    return getNote;
+};
+module.exports = {getServer, addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler, deleteNoteByIdHandler, createUsers, retrieveUser, loginUser, deleteUserByID, getUserById};

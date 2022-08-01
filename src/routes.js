@@ -1,4 +1,4 @@
-const { addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler, getServer, deleteNoteByIdHandler, retrieveUser, createUsers, deleteUserByUsername, loginUser } = require("./handler");
+const { addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler, getServer, deleteNoteByIdHandler, retrieveUser, createUsers, loginUser, getUserById, deleteUserByID } = require("./handler");
 const Joi = require('joi');
 const routes = [
     {
@@ -9,9 +9,9 @@ const routes = [
             cors: true,
             // auth: false,
         }
-    }
+    },
    
-    ,{
+    {
         method: 'POST',
         path: '/notes',
         handler: addNoteHandler,
@@ -53,6 +53,17 @@ const routes = [
         handler: retrieveUser,
         options: {
             cors: true,
+            auth: false
+        }
+    },
+
+    {
+        method: "GET",
+        path: '/notes/users/{userId}',
+        handler: getUserById,
+        options: {
+            cors: true,
+            auth: false
         }
     },
 
@@ -67,6 +78,7 @@ const routes = [
                 payload: Joi.object({
                     username: Joi.string().required().min(8).max(20),
                     password: Joi.string().required().min(8).max(12),
+                    role: Joi.string().required().min(4).max(5)
                 })
             }
         }
@@ -92,16 +104,15 @@ const routes = [
         },
     },
 
-    // [Not Worked]
-    // {
-    //     method: 'DELETE',
-    //     path: '/notes/users',
-    //     handler: deleteUserByUsername,
-    //     options: {
-    //         auth: false,
-    //         cors: true,
-    //     }
-    // }
+    {
+        method: 'DELETE',
+        path: '/notes/users/{userId}',
+        handler: deleteUserByID,
+        options: {
+            auth: false,
+            cors: true,
+        }
+    },
 ];
 
 module.exports = routes;

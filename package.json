@@ -23,6 +23,7 @@
     "@hapi/hapi": "^20.2.2",
     "bcrypt": "^5.0.1",
     "dotenv": "^16.0.1",
+    "hapi-acl-auth": "^1.0.5",
     "hapi-auth-jwt": "^4.0.0",
     "hapi-auth-jwt2": "^10.2.0",
     "joi": "^17.6.0",
