@@ -37,6 +37,7 @@ internals.init = async () => {
 
     server.route(routes);
     await server.start();
+    console.log(`Server sudah dijalankan pada ${server.info.uri}`);
 
     //===Authentication ngerjain nya pending dulu===
 

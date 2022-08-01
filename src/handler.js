@@ -9,10 +9,6 @@ require('dotenv').config({ path: envPath});
 
 const { JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY } = process.env
 
-const getServer = (request, h) => {
-        return 'Hello, server is working';
-}
-
 const addNoteHandler = async (request, h) => {
     const tableName = 'content'; //Inisialisasi nama table database
     const { title, tags, body } = request.payload;
@@ -299,4 +295,4 @@ const getUserById = async (request, h) => {
         });
     return getNote;
 };
-module.exports = {getServer, addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler, deleteNoteByIdHandler, createUsers, retrieveUser, loginUser, deleteUserByID, getUserById};
+module.exports = {addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler, deleteNoteByIdHandler, createUsers, retrieveUser, loginUser, deleteUserByID, getUserById};

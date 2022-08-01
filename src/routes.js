@@ -1,16 +1,7 @@
-const { addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler, getServer, deleteNoteByIdHandler, retrieveUser, createUsers, loginUser, getUserById, deleteUserByID } = require("./handler");
+const { addNoteHandler, getAllNotesHandler, getNoteByIdHandler, editNoteByIdHandler, deleteNoteByIdHandler, retrieveUser, createUsers, loginUser, getUserById, deleteUserByID } = require("./handler");
 const Joi = require('joi');
 const routes = [
-    {
-        method: 'GET',
-        path: '/',
-        handler: getServer,
-        options: {
-            cors: true,
-            // auth: false,
-        }
-    },
-   
+
     {
         method: 'POST',
         path: '/notes',
