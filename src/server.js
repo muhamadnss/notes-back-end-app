@@ -6,7 +6,6 @@ const routes = require('./routes');
 const validate = require('./validate');
 const envFile = process.env.NODE_ENV ? `.env.${process.env.NODE_ENV}` : '.env'
 const envPath = path.resolve(`${__dirname}/../${envFile}`); 
-const auth = require('hapi-auth-jwt');
 
 require('dotenv').config({ path: envPath});
 
